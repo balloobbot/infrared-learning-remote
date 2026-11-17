@@ -1,0 +1,10 @@
+{
+  "domain": "infrared_button",
+  "name": "Infrared button",
+  "codeowners": ["@balloob"],
+  "config_flow": true,
+  "dependencies": ["infrared"],
+  "integration_type": "helper",
+  "iot_class": "calculated",
+  "version": "0.1.0"
+}
