@@ -1,4 +1,4 @@
-"""Test the Infrared button platform."""
+"""Test the Infrared learning remote platform."""
 
 import pytest
 from homeassistant.components.button import DOMAIN as BUTTON_DOMAIN
@@ -11,7 +11,7 @@ from homeassistant.helpers import entity_registry as er
 from pytest_homeassistant.common import MockConfigEntry
 from pytest_homeassistant.components.infrared.common import MockInfraredEmitterEntity
 
-from custom_components.infrared_button.const import (
+from custom_components.infrared_learning_remote.const import (
     CONF_MODULATION,
     CONF_TIMINGS,
     DOMAIN,

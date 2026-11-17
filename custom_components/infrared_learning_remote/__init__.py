@@ -1,4 +1,4 @@
-"""The Infrared button integration."""
+"""The Infrared learning remote integration."""
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform
@@ -11,7 +11,7 @@ PLATFORMS: list[Platform] = [Platform.BUTTON]
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> None:
-    """Set up Infrared button from a config entry."""
+    """Set up Infrared learning remote from a config entry."""
     # Create the device now, so it exists before the first command is learned.
     dr.async_get(hass).async_get_or_create(
         config_entry_id=entry.entry_id,

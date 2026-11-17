@@ -1,1 +1,1 @@
-"""Tests for the Infrared button integration."""
+"""Tests for the Infrared learning remote integration."""

@@ -1,4 +1,4 @@
-"""Test the Infrared button config flow."""
+"""Test the Infrared learning remote config flow."""
 
 from unittest.mock import AsyncMock
 
@@ -16,8 +16,8 @@ from pytest_homeassistant.components.infrared import (
 )
 from pytest_homeassistant.components.infrared.common import MockInfraredReceiverEntity
 
-from custom_components.infrared_button.config_flow import LEARN_TIMEOUT
-from custom_components.infrared_button.const import (
+from custom_components.infrared_learning_remote.config_flow import LEARN_TIMEOUT
+from custom_components.infrared_learning_remote.const import (
     CONF_INFRARED_ENTITY_ID,
     CONF_INFRARED_RECEIVER_ENTITY_ID,
     CONF_MODULATION,

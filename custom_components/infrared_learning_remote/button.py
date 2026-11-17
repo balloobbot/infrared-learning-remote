@@ -1,4 +1,4 @@
-"""Button platform for the Infrared button integration."""
+"""Button platform for the Infrared learning remote integration."""
 
 from typing import override
 
@@ -39,11 +39,12 @@ async def async_setup_entry(
     """Set up a button for each learned command."""
     for subentry_id, subentry in entry.subentries.items():
         async_add_entities(
-            [InfraredButtonEntity(entry, subentry)], config_subentry_id=subentry_id
+            [InfraredLearningRemoteButton(entry, subentry)],
+            config_subentry_id=subentry_id,
         )
 
 
-class InfraredButtonEntity(InfraredEmitterConsumerEntity, ButtonEntity):
+class InfraredLearningRemoteButton(InfraredEmitterConsumerEntity, ButtonEntity):
     """Button that sends a learned IR command."""
 
     _attr_has_entity_name = True

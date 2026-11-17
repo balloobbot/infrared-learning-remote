@@ -1,8 +1,8 @@
-"""Constants for the Infrared button integration."""
+"""Constants for the Infrared learning remote integration."""
 
 from typing import Final
 
-DOMAIN: Final = "infrared_button"
+DOMAIN: Final = "infrared_learning_remote"
 
 SUBENTRY_TYPE_COMMAND: Final = "command"
 

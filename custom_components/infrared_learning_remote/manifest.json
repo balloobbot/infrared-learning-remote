@@ -1,6 +1,6 @@
 {
-  "domain": "infrared_button",
-  "name": "Infrared button",
+  "domain": "infrared_learning_remote",
+  "name": "Infrared learning remote",
   "codeowners": ["@balloob"],
   "config_flow": true,
   "dependencies": ["infrared"],

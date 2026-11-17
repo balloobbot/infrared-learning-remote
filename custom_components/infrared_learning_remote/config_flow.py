@@ -1,4 +1,4 @@
-"""Config flow for the Infrared button integration."""
+"""Config flow for the Infrared learning remote integration."""
 
 import asyncio
 from contextlib import suppress
@@ -47,7 +47,7 @@ DEFAULT_MODULATION = 38000
 NAME_SCHEMA = probatio.Schema({probatio.Required(CONF_NAME): TextSelector()})
 
 
-class InfraredButtonConfigFlow(ConfigFlow, domain=DOMAIN):
+class InfraredLearningRemoteConfigFlow(ConfigFlow, domain=DOMAIN):
     """Create a device that sends commands through one emitter."""
 
     VERSION = 1

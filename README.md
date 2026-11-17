@@ -1,4 +1,4 @@
-# Infrared button
+# Infrared learning remote
 
 A Home Assistant helper that learns commands from a remote and sends them again as buttons.
 
@@ -15,12 +15,12 @@ ESPHome, Broadlink, MQTT and ZHA devices can provide these entities.
 ### HACS
 
 1. In HACS, add this repository as a custom repository of the type **Integration**.
-2. Download **Infrared button**.
+2. Download **Infrared learning remote**.
 3. Restart Home Assistant.
 
 ### Manual
 
-1. Copy `custom_components/infrared_button` into the `custom_components` folder of your Home Assistant configuration.
+1. Copy `custom_components/infrared_learning_remote` into the `custom_components` folder of your Home Assistant configuration.
 2. Restart Home Assistant.
 
 ## Use
@@ -28,7 +28,7 @@ ESPHome, Broadlink, MQTT and ZHA devices can provide these entities.
 ### Create a device
 
 1. Go to **Settings** > **Devices & services** > **Helpers**.
-2. Select **Create helper** > **Infrared button**.
+2. Select **Create helper** > **Infrared learning remote**.
 3. Enter the name of the device that you control, for example, Living room TV.
 4. Select the infrared emitter that sends the commands.
 

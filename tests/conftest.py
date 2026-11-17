@@ -1,4 +1,4 @@
-"""Common fixtures for the Infrared button tests."""
+"""Common fixtures for the Infrared learning remote tests."""
 
 from collections.abc import Generator
 from unittest.mock import AsyncMock, patch
@@ -8,7 +8,7 @@ from homeassistant.config_entries import ConfigSubentryData
 from pytest_homeassistant.common import MockConfigEntry
 from pytest_homeassistant.components.infrared import EMITTER_ENTITY_ID
 
-from custom_components.infrared_button.const import (
+from custom_components.infrared_learning_remote.const import (
     CONF_INFRARED_ENTITY_ID,
     CONF_MODULATION,
     CONF_TIMINGS,
@@ -28,7 +28,7 @@ def auto_enable_custom_integrations(enable_custom_integrations: None) -> None:
 def mock_setup_entry() -> Generator[AsyncMock]:
     """Override async_setup_entry."""
     with patch(
-        "custom_components.infrared_button.async_setup_entry",
+        "custom_components.infrared_learning_remote.async_setup_entry",
         return_value=None,
     ) as mock_setup_entry:
         yield mock_setup_entry
