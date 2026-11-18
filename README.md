@@ -1,5 +1,7 @@
 # Infrared learning remote
 
+[![Open your Home Assistant instance and open a repository in the Marketplace.](https://my.home-assistant.io/badges/marketplace_repository.svg)](https://my.home-assistant.io/redirect/marketplace_repository/?owner=balloobbot&repository=infrared-learning-remote&category=integration)
+
 A Home Assistant helper that learns commands from a remote and sends them again as buttons.
 
 ## Requirements
