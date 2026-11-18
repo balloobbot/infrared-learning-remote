@@ -1,10 +1,16 @@
 {
   "domain": "infrared_learning_remote",
   "name": "Infrared learning remote",
-  "codeowners": ["@balloob"],
+  "codeowners": [
+    "@balloob"
+  ],
   "config_flow": true,
-  "dependencies": ["infrared"],
+  "dependencies": [
+    "infrared"
+  ],
+  "documentation": "https://github.com/balloobbot/infrared-learning-remote",
   "integration_type": "helper",
   "iot_class": "calculated",
+  "issue_tracker": "https://github.com/balloobbot/infrared-learning-remote/issues",
   "version": "0.1.0"
 }
