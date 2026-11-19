@@ -6,10 +6,14 @@ from unittest.mock import AsyncMock, patch
 import pytest
 from homeassistant.config_entries import ConfigSubentryData
 from pytest_homeassistant.common import MockConfigEntry
-from pytest_homeassistant.components.infrared import EMITTER_ENTITY_ID
+from pytest_homeassistant.components.infrared import (
+    EMITTER_ENTITY_ID,
+    RECEIVER_ENTITY_ID,
+)
 
 from custom_components.infrared_learning_remote.const import (
     CONF_INFRARED_ENTITY_ID,
+    CONF_INFRARED_RECEIVER_ENTITY_ID,
     CONF_MODULATION,
     CONF_TIMINGS,
     DOMAIN,
@@ -41,7 +45,10 @@ def mock_config_entry() -> MockConfigEntry:
         domain=DOMAIN,
         title="Living room TV",
         entry_id="1234567890",
-        data={CONF_INFRARED_ENTITY_ID: EMITTER_ENTITY_ID},
+        data={
+            CONF_INFRARED_ENTITY_ID: EMITTER_ENTITY_ID,
+            CONF_INFRARED_RECEIVER_ENTITY_ID: RECEIVER_ENTITY_ID,
+        },
         subentries_data=[
             ConfigSubentryData(
                 subentry_type=SUBENTRY_TYPE_COMMAND,

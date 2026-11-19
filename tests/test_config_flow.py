@@ -29,7 +29,9 @@ from custom_components.infrared_learning_remote.const import (
 from .conftest import TIMINGS
 
 
-@pytest.mark.usefixtures("mock_infrared_emitter_entity")
+@pytest.mark.usefixtures(
+    "mock_infrared_emitter_entity", "mock_infrared_receiver_entity"
+)
 async def test_user_flow(hass: HomeAssistant, mock_setup_entry: AsyncMock) -> None:
     """Test creating a device."""
     result = await hass.config_entries.flow.async_init(
@@ -39,12 +41,19 @@ async def test_user_flow(hass: HomeAssistant, mock_setup_entry: AsyncMock) -> No
 
     result = await hass.config_entries.flow.async_configure(
         result["flow_id"],
-        {CONF_NAME: "Living room TV", CONF_INFRARED_ENTITY_ID: EMITTER_ENTITY_ID},
+        {
+            CONF_NAME: "Living room TV",
+            CONF_INFRARED_ENTITY_ID: EMITTER_ENTITY_ID,
+            CONF_INFRARED_RECEIVER_ENTITY_ID: RECEIVER_ENTITY_ID,
+        },
     )
 
     assert result["type"] is FlowResultType.CREATE_ENTRY
     assert result["title"] == "Living room TV"
-    assert result["data"] == {CONF_INFRARED_ENTITY_ID: EMITTER_ENTITY_ID}
+    assert result["data"] == {
+        CONF_INFRARED_ENTITY_ID: EMITTER_ENTITY_ID,
+        CONF_INFRARED_RECEIVER_ENTITY_ID: RECEIVER_ENTITY_ID,
+    }
     assert len(mock_setup_entry.mock_calls) == 1
 
 
@@ -57,6 +66,17 @@ async def test_user_flow_no_emitters(hass: HomeAssistant) -> None:
 
     assert result["type"] is FlowResultType.ABORT
     assert result["reason"] == "no_infrared_emitters"
+
+
+@pytest.mark.usefixtures("mock_infrared_emitter_entity")
+async def test_user_flow_no_receivers(hass: HomeAssistant) -> None:
+    """Test the flow aborts without receivers."""
+    result = await hass.config_entries.flow.async_init(
+        DOMAIN, context={"source": SOURCE_USER}
+    )
+
+    assert result["type"] is FlowResultType.ABORT
+    assert result["reason"] == "no_infrared_receivers"
 
 
 @pytest.mark.parametrize("modulation", [None, 36000])
@@ -77,9 +97,7 @@ async def test_command_flow(
     assert result["type"] is FlowResultType.FORM
     assert result["step_id"] == "user"
 
-    result = await hass.config_entries.subentries.async_configure(
-        result["flow_id"], {CONF_INFRARED_RECEIVER_ENTITY_ID: RECEIVER_ENTITY_ID}
-    )
+    result = await hass.config_entries.subentries.async_configure(result["flow_id"], {})
     assert result["type"] is FlowResultType.SHOW_PROGRESS
     assert result["progress_action"] == "wait_for_signal"
 
@@ -117,9 +135,7 @@ async def test_command_flow_no_signal(
         (mock_config_entry.entry_id, SUBENTRY_TYPE_COMMAND),
         context={"source": SOURCE_USER},
     )
-    result = await hass.config_entries.subentries.async_configure(
-        result["flow_id"], {CONF_INFRARED_RECEIVER_ENTITY_ID: RECEIVER_ENTITY_ID}
-    )
+    result = await hass.config_entries.subentries.async_configure(result["flow_id"], {})
     assert result["type"] is FlowResultType.SHOW_PROGRESS
 
     freezer.tick(LEARN_TIMEOUT + 1)
@@ -131,9 +147,7 @@ async def test_command_flow_no_signal(
     assert result["step_id"] == "user"
     assert result["errors"] == {"base": "no_signal"}
 
-    result = await hass.config_entries.subentries.async_configure(
-        result["flow_id"], {CONF_INFRARED_RECEIVER_ENTITY_ID: RECEIVER_ENTITY_ID}
-    )
+    result = await hass.config_entries.subentries.async_configure(result["flow_id"], {})
     assert result["type"] is FlowResultType.SHOW_PROGRESS
 
     mock_infrared_receiver_entity._handle_received_signal(
@@ -152,10 +166,10 @@ async def test_command_flow_no_signal(
 
 
 @pytest.mark.usefixtures("mock_setup_entry", "init_infrared")
-async def test_command_flow_no_receivers(
+async def test_command_flow_receiver_not_found(
     hass: HomeAssistant, mock_config_entry: MockConfigEntry
 ) -> None:
-    """Test the command flow aborts without receivers."""
+    """Test the command flow aborts when the receiver of the device is gone."""
     mock_config_entry.add_to_hass(hass)
 
     result = await hass.config_entries.subentries.async_init(
@@ -164,4 +178,4 @@ async def test_command_flow_no_receivers(
     )
 
     assert result["type"] is FlowResultType.ABORT
-    assert result["reason"] == "no_infrared_receivers"
+    assert result["reason"] == "receiver_not_found"

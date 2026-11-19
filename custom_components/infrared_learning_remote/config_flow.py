@@ -65,14 +65,21 @@ class InfraredLearningRemoteConfigFlow(ConfigFlow, domain=DOMAIN):
     async def async_step_user(
         self, user_input: dict[str, Any] | None = None
     ) -> ConfigFlowResult:
-        """Select the name of the device and the emitter."""
+        """Select the name of the device, the emitter and the receiver."""
         if not (emitters := async_get_emitters(self.hass)):
             return self.async_abort(reason="no_infrared_emitters")
+        if not (receivers := async_get_receivers(self.hass)):
+            return self.async_abort(reason="no_infrared_receivers")
 
         if user_input is not None:
             return self.async_create_entry(
                 title=user_input[CONF_NAME],
-                data={CONF_INFRARED_ENTITY_ID: user_input[CONF_INFRARED_ENTITY_ID]},
+                data={
+                    CONF_INFRARED_ENTITY_ID: user_input[CONF_INFRARED_ENTITY_ID],
+                    CONF_INFRARED_RECEIVER_ENTITY_ID: user_input[
+                        CONF_INFRARED_RECEIVER_ENTITY_ID
+                    ],
+                },
             )
 
         return self.async_show_form(
@@ -82,6 +89,11 @@ class InfraredLearningRemoteConfigFlow(ConfigFlow, domain=DOMAIN):
                     probatio.Required(CONF_INFRARED_ENTITY_ID): EntitySelector(
                         EntitySelectorConfig(
                             domain=INFRARED_DOMAIN, include_entities=emitters
+                        )
+                    ),
+                    probatio.Required(CONF_INFRARED_RECEIVER_ENTITY_ID): EntitySelector(
+                        EntitySelectorConfig(
+                            domain=INFRARED_DOMAIN, include_entities=receivers
                         )
                     ),
                 }
@@ -94,22 +106,21 @@ class CommandSubentryFlowHandler(ConfigSubentryFlow):
 
     def __init__(self) -> None:
         """Initialize the flow."""
-        self._receiver_entity_id: str | None = None
         self._learn_task: asyncio.Task[InfraredReceivedSignal] | None = None
         self._signal: InfraredReceivedSignal | None = None
 
     async def async_step_user(
         self, user_input: dict[str, Any] | None = None
     ) -> SubentryFlowResult:
-        """Select the receiver."""
-        if not async_get_receivers(self.hass):
-            return self.async_abort(reason="no_infrared_receivers")
+        """Confirm that the user is ready to press the button."""
+        receiver = self._get_entry().data[CONF_INFRARED_RECEIVER_ENTITY_ID]
+        if receiver not in async_get_receivers(self.hass):
+            return self.async_abort(reason="receiver_not_found")
 
         if user_input is not None:
-            self._receiver_entity_id = user_input[CONF_INFRARED_RECEIVER_ENTITY_ID]
             return await self.async_step_learn()
 
-        return self._async_show_user_form()
+        return self.async_show_form(step_id="user")
 
     async def async_step_learn(
         self, user_input: dict[str, Any] | None = None
@@ -127,7 +138,7 @@ class CommandSubentryFlowHandler(ConfigSubentryFlow):
                 progress_task=self._learn_task,
             )
 
-        # On timeout, learn_done shows the receiver form again with an error
+        # On timeout, learn_done shows the confirm form again with an error
         with suppress(TimeoutError):
             self._signal = self._learn_task.result()
         self._learn_task = None
@@ -139,7 +150,7 @@ class CommandSubentryFlowHandler(ConfigSubentryFlow):
     ) -> SubentryFlowResult:
         """Continue to the name step, or retry when no signal came in."""
         if self._signal is None:
-            return self._async_show_user_form({"base": "no_signal"})
+            return self.async_show_form(step_id="user", errors={"base": "no_signal"})
         return await self.async_step_name()
 
     async def async_step_name(
@@ -158,32 +169,8 @@ class CommandSubentryFlowHandler(ConfigSubentryFlow):
 
         return self.async_show_form(step_id="name", data_schema=NAME_SCHEMA)
 
-    @callback
-    def _async_show_user_form(
-        self, errors: dict[str, str] | None = None
-    ) -> SubentryFlowResult:
-        """Show the form to select the receiver."""
-        schema = probatio.Schema(
-            {
-                probatio.Required(CONF_INFRARED_RECEIVER_ENTITY_ID): EntitySelector(
-                    EntitySelectorConfig(
-                        domain=INFRARED_DOMAIN,
-                        include_entities=async_get_receivers(self.hass),
-                    )
-                ),
-            }
-        )
-        return self.async_show_form(
-            step_id="user",
-            data_schema=self.add_suggested_values_to_schema(
-                schema, {CONF_INFRARED_RECEIVER_ENTITY_ID: self._receiver_entity_id}
-            ),
-            errors=errors,
-        )
-
     async def _async_learn_signal(self) -> InfraredReceivedSignal:
         """Return the first signal that the receiver gets."""
-        assert self._receiver_entity_id is not None
         future: asyncio.Future[InfraredReceivedSignal] = self.hass.loop.create_future()
 
         @callback
@@ -192,7 +179,9 @@ class CommandSubentryFlowHandler(ConfigSubentryFlow):
                 future.set_result(signal)
 
         unsubscribe = async_subscribe_receiver(
-            self.hass, self._receiver_entity_id, _async_on_signal
+            self.hass,
+            self._get_entry().data[CONF_INFRARED_RECEIVER_ENTITY_ID],
+            _async_on_signal,
         )
         try:
             async with asyncio.timeout(LEARN_TIMEOUT):

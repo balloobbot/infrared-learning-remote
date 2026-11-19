@@ -1,16 +1,19 @@
 {
   "config": {
     "abort": {
-      "no_infrared_emitters": "No infrared emitter entities found. Set up an infrared emitter first."
+      "no_infrared_emitters": "No infrared emitter entities found. Set up an infrared emitter first.",
+      "no_infrared_receivers": "No infrared receiver entities found. Set up an infrared receiver first."
     },
     "step": {
       "user": {
         "data": {
           "infrared_entity_id": "Infrared emitter",
+          "infrared_receiver_entity_id": "Infrared receiver",
           "name": "Name"
         },
         "data_description": {
           "infrared_entity_id": "The infrared emitter that sends the commands of this device.",
+          "infrared_receiver_entity_id": "The infrared receiver that learns commands from your remote and detects when you use it.",
           "name": "The name of the device that you control, for example, Living room TV."
         },
         "description": "Create a device that you control with infrared commands. After you create it, add a command for each button of your remote.",
@@ -21,7 +24,7 @@
   "config_subentries": {
     "command": {
       "abort": {
-        "no_infrared_receivers": "No infrared receiver entities found. Set up an infrared receiver first."
+        "receiver_not_found": "The infrared receiver of this device is not available. Check that it is set up and online."
       },
       "entry_type": "Command",
       "error": {
@@ -45,17 +48,18 @@
           "title": "Name the command"
         },
         "user": {
-          "data": {
-            "infrared_receiver_entity_id": "Infrared receiver"
-          },
-          "data_description": {
-            "infrared_receiver_entity_id": "The infrared receiver that learns the command from your remote."
-          },
-          "description": "After you select **Submit**, you have 30 seconds to press the button on your remote.",
+          "description": "Point your remote at the infrared receiver. After you select **Submit**, you have 30 seconds to press the button that you want to learn.",
           "title": "Learn a command"
         }
       }
     }
   },
-  "title": "Infrared learning remote"
+  "title": "Infrared learning remote",
+  "entity": {
+    "event": {
+      "received_command": {
+        "name": "Received command"
+      }
+    }
+  }
 }

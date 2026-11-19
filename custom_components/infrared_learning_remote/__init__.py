@@ -7,7 +7,7 @@ from homeassistant.helpers import device_registry as dr
 
 from .const import DOMAIN
 
-PLATFORMS: list[Platform] = [Platform.BUTTON]
+PLATFORMS: list[Platform] = [Platform.BUTTON, Platform.EVENT]
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> None:

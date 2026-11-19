@@ -37,7 +37,6 @@ async def test_press(
 
     entity_entry = entity_registry.async_get(ENTITY_ID)
     assert entity_entry is not None
-    assert entity_entry.config_subentry_id == "power_subentry"
     device = device_registry.async_get_device_by_identifier(
         (DOMAIN, mock_config_entry.entry_id), mock_config_entry.entry_id
     )
@@ -75,3 +74,22 @@ async def test_add_command(
     await hass.async_block_till_done()
 
     assert hass.states.get("button.living_room_tv_volume_up") is not None
+
+
+@pytest.mark.usefixtures("mock_infrared_emitter_entity")
+async def test_remove_command(
+    hass: HomeAssistant,
+    mock_config_entry: MockConfigEntry,
+    entity_registry: er.EntityRegistry,
+) -> None:
+    """Test removing a command removes its button."""
+    mock_config_entry.add_to_hass(hass)
+    await hass.config_entries.async_setup(mock_config_entry.entry_id)
+    await hass.async_block_till_done()
+    assert entity_registry.async_get(ENTITY_ID) is not None
+
+    hass.config_entries.async_remove_subentry(mock_config_entry, "power_subentry")
+    await hass.async_block_till_done()
+
+    assert entity_registry.async_get(ENTITY_ID) is None
+    assert hass.states.get(ENTITY_ID) is None

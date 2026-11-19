@@ -2,6 +2,7 @@
 
 from typing import override
 
+from homeassistant.components.button import DOMAIN as BUTTON_DOMAIN
 from homeassistant.components.button import ButtonEntity
 from homeassistant.components.infrared import (
     InfraredCommand,
@@ -9,6 +10,7 @@ from homeassistant.components.infrared import (
 )
 from homeassistant.config_entries import ConfigEntry, ConfigSubentry
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers import entity_registry as er
 from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 
@@ -37,11 +39,23 @@ async def async_setup_entry(
     async_add_entities: AddConfigEntryEntitiesCallback,
 ) -> None:
     """Set up a button for each learned command."""
-    for subentry_id, subentry in entry.subentries.items():
-        async_add_entities(
-            [InfraredLearningRemoteButton(entry, subentry)],
-            config_subentry_id=subentry_id,
-        )
+    # All commands share one device, and a device can belong to only one
+    # subentry. So the buttons are not linked to their subentry, and the buttons
+    # of removed commands must be removed here.
+    entity_registry = er.async_get(hass)
+    for entity_entry in er.async_entries_for_config_entry(
+        entity_registry, entry.entry_id
+    ):
+        if (
+            entity_entry.domain == BUTTON_DOMAIN
+            and entity_entry.unique_id not in entry.subentries
+        ):
+            entity_registry.async_remove(entity_entry.entity_id)
+
+    async_add_entities(
+        InfraredLearningRemoteButton(entry, subentry)
+        for subentry in entry.subentries.values()
+    )
 
 
 class InfraredLearningRemoteButton(InfraredEmitterConsumerEntity, ButtonEntity):
